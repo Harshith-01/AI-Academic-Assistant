@@ -2,6 +2,7 @@ import axios from "axios";
 import { supabase } from "../lib/supabaseClient";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_PREFIX = "/api/v1";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -97,7 +98,7 @@ export async function fetchStudentById(studentId) {
 }
 
 export async function analyzeStudent(studentId, query) {
-  const { data } = await apiClient.post("/ai/analyze", {
+  const { data } = await apiClient.post(`${API_PREFIX}/ai/analyze`, {
     student_id: studentId,
     query,
   });
@@ -105,6 +106,6 @@ export async function analyzeStudent(studentId, query) {
 }
 
 export async function analyzeClass() {
-  const { data } = await apiClient.post("/ai/analyze_class");
+  const { data } = await apiClient.post(`${API_PREFIX}/ai/analyze_class`);
   return data;
 }

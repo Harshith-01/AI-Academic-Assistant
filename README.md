@@ -1,49 +1,109 @@
-# AI Academic Assistant
+﻿# AI Academic Assistant
 
-A full-stack starter project with:
-- Frontend: React (Vite) + Tailwind CSS + SaaS dashboard UI
-- Backend: FastAPI with modular routers/services
-- Database: Supabase (PostgreSQL)
-- AI: Google Gemini API
+This repository contains a full-stack academic assistant dashboard that connects:
 
-## Project Structure
+- **Frontend:** React + Vite + Tailwind CSS
+- **Backend:** FastAPI
+- **Database/Auth:** Supabase (PostgreSQL + Auth)
+- **AI:** Google Gemini via `google-generativeai`
 
-```text
-ai-academic-assistant/
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── cards/
-│   │   │   └── layout/
-│   │   ├── data/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   ├── index.css
-│   │   └── main.jsx
-│   ├── .env.example
-│   ├── index.html
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   └── vite.config.js
-└── backend/
-    ├── app/
-    │   ├── api/
-    │   │   ├── routers/
-    │   │   └── deps.py
-    │   ├── core/
-    │   ├── db/
-    │   ├── schemas/
-    │   ├── services/
-    │   └── main.py
-    ├── .env.example
-    └── requirements.txt
-```
+The app is designed to let a teacher or academic coordinator:
 
-## Quick Start
+- view student records stored in Supabase,
+- inspect attendance and subject marks,
+- review AI-generated class insights,
+- and ask the assistant questions about individual students.
+
+---
+
+## Architecture Overview
+
+### Backend
+
+The backend lives in `backend/` and exposes:
+
+- `GET /students` — list all student records
+- `GET /students/{id}` — fetch a single student profile
+- `POST /api/v1/ai/analyze` — ask the AI about a student
+- `POST /api/v1/ai/analyze_class` — generate class-level insights
+
+Authentication is enforced on all endpoints except `/health` using Supabase JWT tokens.
+The backend uses a Supabase service role key to read student records and to log AI interactions.
 
 ### Frontend
+
+The frontend is in `frontend/` and uses:
+
+- Supabase auth for login/signup
+- Axios to call the backend API
+- UI screens for dashboard, student list, student detail, and class insights
+
+Student data is fetched from the backend, normalized for display, and shown in the dashboard and student pages.
+
+### Data Flow
+
+1. User logs in with Supabase auth.
+2. Frontend gets the Supabase session token.
+3. Axios adds `Authorization: Bearer <token>` to backend API requests.
+4. Backend verifies the token with Supabase and returns data.
+5. For AI requests, the backend sends prompts to Google Gemini and returns the response.
+6. AI interactions are logged to the Supabase `interactions` table.
+
+---
+
+## Existing Backend Virtual Environment
+
+A Python virtual environment already exists in `backend/venv`.
+
+### Use the existing environment
+
+```bash
+cd backend
+# Windows PowerShell
+.\venv\Scripts\Activate.ps1
+# Windows CMD
+.\venv\Scripts\activate.bat
+# macOS / Linux
+source venv/bin/activate
+```
+
+Do not create another virtual environment unless you specifically need a separate one.
+
+---
+
+## Local Setup
+
+### Backend
+
+1. Activate the existing backend environment.
+2. Install requirements if needed:
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+3. Create a `.env` file from `backend/.env.example`.
+4. Set your Supabase values and Gemini API key.
+5. Start the backend:
+
+```bash
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+
+If you prefer the local Python entrypoint, you can also run:
+
+```bash
+cd backend
+python run.py
+```
+
+### Frontend
+
+1. Copy `frontend/.env.example` to `frontend/.env`.
+2. Add your backend URL and Supabase browser credentials.
+3. Install dependencies and start Vite:
 
 ```bash
 cd frontend
@@ -51,81 +111,117 @@ npm install
 npm run dev
 ```
 
-### Backend
+Open the frontend at the URL shown by Vite (usually `http://localhost:5173`).
 
-```bash
-cd backend
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
+---
 
-Set environment variables from `.env.example` in both `frontend` and `backend`.
+## How to Use the App
 
-## Deployment Setup
+### Logging in
 
-### Supabase
+- Use the Supabase sign-up screen to create a new account.
+- Then sign in with that account.
+- After login, the app redirects to the dashboard.
 
-Open `Supabase Dashboard -> Project Settings -> API` and copy these values:
+### Dashboard
 
-- `Project URL` -> use it for `SUPABASE_URL` in `backend/.env` and `VITE_SUPABASE_URL` in `frontend/.env`
-- `service_role key` -> use it only for `SUPABASE_SERVICE_ROLE_KEY` in the backend on Render
-- `anon/public key` -> use it only for `VITE_SUPABASE_ANON_KEY` in the frontend on Vercel
+- Shows student summary stats and the active roster.
+- Click a student row to view full details and AI chat.
 
-### Render Backend
+### Student detail page
 
-Create a Python web service pointing to the `backend` directory.
+- See attendance, subject marks, and risk status.
+- Ask the AI assistant questions about the student.
+- The assistant answer is generated by Gemini and logged to Supabase.
 
-- Root Directory: `backend`
-- Build Command: `pip install -r requirements.txt`
-- Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+### Class insights page
 
-Add these Render environment variables from `backend/.env.example`:
+- Click `Analyze Entire Class` to generate group-level cards and a summary.
+- This uses the `/api/v1/ai/analyze_class` endpoint.
 
-- `PROJECT_NAME=AI Academic Assistant API`
-- `API_V1_PREFIX=/api/v1`
-- `BACKEND_CORS_ORIGINS=http://localhost:5173,https://your-vercel-project.vercel.app`
-- `SUPABASE_URL=https://your-project-ref.supabase.co`
-- `SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key`
-- `SUPABASE_INTERACTIONS_TABLE=interactions`
-- `SUPABASE_STUDENTS_TABLE=students`
-- `GEMINI_API_KEY=your-gemini-api-key`
-- `GEMINI_MODEL=gemini-1.5-flash`
-- `PYTHON_VERSION=3.11.9`
+---
 
-After deployment, Render will give you a backend URL like `https://your-backend-service.onrender.com`.
+## Supabase Setup and Data Entry
 
-### Vercel Frontend
+### Required Supabase tables
 
-Create the Vercel project from the `frontend` directory and add these environment variables:
+The backend expects at least two tables:
 
-- `VITE_API_BASE_URL=https://your-backend-service.onrender.com`
-- `VITE_SUPABASE_URL=https://your-project-ref.supabase.co`
-- `VITE_SUPABASE_ANON_KEY=your-supabase-anon-key`
+- `students`
+- `interactions`
 
-Your final URL mapping should be:
+### `students` table columns
 
-- `SUPABASE_URL` and `VITE_SUPABASE_URL`: same Supabase Project URL
-- `SUPABASE_SERVICE_ROLE_KEY`: backend only on Render
-- `VITE_SUPABASE_ANON_KEY`: frontend only on Vercel
-- `VITE_API_BASE_URL`: your Render backend URL
-- `BACKEND_CORS_ORIGINS`: must include your Vercel frontend URL so the browser can call the backend
+At minimum, add these columns to your `students` table:
 
-Example deployed values:
+- `id` (primary key)
+- `name` (text)
+- `attendance` (numeric or text like `85%`)
+- `math_marks` (numeric)
+- `science_marks` (numeric)
+- `english_marks` (numeric)
 
-```env
-# Render backend
-BACKEND_CORS_ORIGINS=https://your-frontend-app.vercel.app
-SUPABASE_URL=https://abcdefghijklm.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-GEMINI_API_KEY=your-gemini-api-key
+Optional columns used by the UI:
 
-# Vercel frontend
-VITE_API_BASE_URL=https://your-backend-service.onrender.com
-VITE_SUPABASE_URL=https://abcdefghijklm.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
+- `email`
+- `cohort`
+- `sessions`
+- `notes`
+- `performance`
+
+### Adding student data
+
+Use the Supabase Dashboard:
+
+1. Open your Supabase project.
+2. Go to `Table Editor`.
+3. Select the `students` table.
+4. Click `Insert Row`.
+5. Enter student name, attendance, and marks.
+
+The dashboard will use this data to populate the student list and detail screens.
+
+### Interactions log
+
+The backend inserts AI prompts and responses into the `interactions` table automatically.
+You do not need to add rows manually for this table.
+
+---
+
+## Demo Flow
+
+1. Start the backend and frontend.
+2. Sign in with a Supabase account.
+3. Visit the dashboard to see the roster.
+4. Click `Students` to browse all records.
+5. Open a student profile and ask the AI a question.
+6. Visit `Insights` and generate class-level recommendations.
+
+This demonstrates how the app turns student performance data into actionable insights using Supabase and Gemini.
+
+---
+
+## Troubleshooting
+
+### Common issues
+
+- **Cannot fetch data:** check that the backend is running on `http://localhost:8000` and that `frontend/.env` has `VITE_API_BASE_URL` set correctly.
+- **Login works but API calls fail:** ensure backend `.env` contains the Supabase service role key and `BACKEND_CORS_ORIGINS` includes `http://localhost:5173`.
+- **AI analysis errors:** verify `GEMINI_API_KEY` is set in backend `.env` and the backend can reach Google Gemini.
+
+### Key endpoints
+
+- `http://localhost:8000/students`
+- `http://localhost:8000/students/{id}`
+- `http://localhost:8000/api/v1/ai/analyze`
+- `http://localhost:8000/api/v1/ai/analyze_class`
+- `http://localhost:8000/health`
+
+---
+
+## Notes
+
+- Backend auth is handled by Supabase tokens.
+- Frontend uses anonymous Supabase browser keys only for login/session management.
+- Backend uses the Supabase service role key to access tables securely.
+- The backend virtual environment is already in `backend/venv`; use that one.
