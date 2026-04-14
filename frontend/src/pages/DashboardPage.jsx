@@ -20,7 +20,10 @@ function DashboardPage() {
         const result = await fetchStudents();
         setStudents(result);
       } catch (loadError) {
-        setError("Unable to load students from backend.");
+        console.error("Dashboard students load error:", loadError);
+        setError(
+          loadError?.response?.data?.detail || loadError?.message || "Unable to load students from backend."
+        );
       } finally {
         setIsLoading(false);
       }

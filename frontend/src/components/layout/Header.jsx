@@ -1,7 +1,18 @@
 import { Menu, Search } from "lucide-react";
 import ThemeToggle from "../ui/ThemeToggle";
+import { useAuth } from "../../context/AuthContext";
 
 function Header({ onMenuClick }) {
+  const { user } = useAuth();
+  const displayName = user?.user_metadata?.full_name || user?.email || "Riya Khanna";
+  const initials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const roleLabel = user?.email ? "Signed in user" : "Program Manager";
+
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/85 px-4 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80 sm:px-6 lg:px-10">
       <div className="flex items-center gap-3">
@@ -29,11 +40,11 @@ function Header({ onMenuClick }) {
           type="button"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-cyan-500 text-sm font-bold text-white">
-            RK
+            {initials}
           </span>
           <span className="hidden text-left md:block">
-            <span className="block text-xs text-slate-500 dark:text-slate-400">Program Manager</span>
-            <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">Riya Khanna</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400">{roleLabel}</span>
+            <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">{displayName}</span>
           </span>
         </button>
       </div>

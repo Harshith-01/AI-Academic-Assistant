@@ -20,7 +20,10 @@ function StudentsPage() {
         const result = await fetchStudents();
         setStudents(result);
       } catch (loadError) {
-        setError("Unable to fetch students from backend.");
+        console.error("Students load error:", loadError);
+        setError(
+          loadError?.response?.data?.detail || loadError?.message || "Unable to fetch students from backend."
+        );
       } finally {
         setIsLoading(false);
       }

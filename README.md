@@ -150,6 +150,16 @@ The backend expects at least two tables:
 - `students`
 - `interactions`
 
+### `interactions` table columns
+
+The `interactions` table is used to store AI prompt/response history.
+At minimum, add these columns:
+
+- `id` (primary key)
+- `prompt` (text)
+- `response` (text)
+- `created_at` (timestamp or timestamptz)
+
 ### `students` table columns
 
 At minimum, add these columns to your `students` table:
@@ -205,8 +215,9 @@ This demonstrates how the app turns student performance data into actionable ins
 
 ### Common issues
 
-- **Cannot fetch data:** check that the backend is running on `http://localhost:8000` and that `frontend/.env` has `VITE_API_BASE_URL` set correctly.
-- **Login works but API calls fail:** ensure backend `.env` contains the Supabase service role key and `BACKEND_CORS_ORIGINS` includes `http://localhost:5173`.
+- **Cannot fetch students:** check that the backend is running on `http://localhost:8000` and that `frontend/.env` has `VITE_API_BASE_URL` set correctly.
+- **Hosted frontend but no backend data:** if your website is deployed, `VITE_API_BASE_URL` must point to your deployed backend URL, not `localhost`. Also ensure the backend’s `BACKEND_CORS_ORIGINS` includes your deployed frontend domain.
+- **Login works but API calls fail:** ensure backend `.env` contains the Supabase service role key and `BACKEND_CORS_ORIGINS` includes the origin of the frontend where users access the app.
 - **AI analysis errors:** verify `GEMINI_API_KEY` is set in backend `.env` and the backend can reach Google Gemini.
 
 ### Key endpoints
