@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import ai, assistant, health, students
@@ -10,6 +10,10 @@ print(f"Backend CORS origins: {settings.backend_cors_origin_list}")
 print(f"API prefix: {settings.api_v1_prefix}")
 
 app = FastAPI(title=settings.project_name)
+
+@app.options("/{full_path:path}")
+async def preflight(full_path: str) -> Response:
+    return Response(status_code=200)
 
 app.add_middleware(
     CORSMiddleware,
