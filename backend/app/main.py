@@ -6,6 +6,9 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+print(f"Backend CORS origins: {settings.backend_cors_origin_list}")
+print(f"API prefix: {settings.api_v1_prefix}")
+
 app = FastAPI(title=settings.project_name)
 
 app.add_middleware(

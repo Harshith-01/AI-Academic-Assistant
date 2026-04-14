@@ -32,6 +32,12 @@ class Settings(BaseSettings):
         if not normalized:
             return []
 
+        def clean_origin(origin: str) -> str:
+            origin_value = origin.strip().strip('"').strip("'")
+            if origin_value.endswith("/") and origin_value != "*":
+                origin_value = origin_value[:-1]
+            return origin_value
+
         if normalized.startswith("["):
             try:
                 parsed = json.loads(normalized)
@@ -39,9 +45,9 @@ class Settings(BaseSettings):
                 parsed = None
 
             if isinstance(parsed, list):
-                return [str(origin).strip() for origin in parsed if str(origin).strip()]
+                return [clean_origin(str(origin)) for origin in parsed if str(origin).strip()]
 
-        return [origin.strip() for origin in normalized.split(",") if origin.strip()]
+        return [clean_origin(origin) for origin in normalized.split(",") if origin.strip()]
 
 
 @lru_cache

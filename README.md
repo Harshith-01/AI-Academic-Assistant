@@ -216,8 +216,8 @@ This demonstrates how the app turns student performance data into actionable ins
 ### Common issues
 
 - **Cannot fetch students:** check that the backend is running on `http://localhost:8000` and that `frontend/.env` has `VITE_API_BASE_URL` set correctly.
-- **Hosted frontend but no backend data:** if your website is deployed, `VITE_API_BASE_URL` must point to your deployed backend URL, not `localhost`. Also ensure the backend’s `BACKEND_CORS_ORIGINS` includes your deployed frontend domain.
-- **Login works but API calls fail:** ensure backend `.env` contains the Supabase service role key and `BACKEND_CORS_ORIGINS` includes the origin of the frontend where users access the app.
+- **Hosted frontend but no backend data:** if your website is deployed, `VITE_API_BASE_URL` must point to your deployed backend URL, not `localhost`. Also ensure the backend’s `BACKEND_CORS_ORIGINS` includes your deployed frontend domain exactly, without a trailing slash.
+- **Login works but API calls fail:** ensure backend `.env` contains the Supabase service role key and `BACKEND_CORS_ORIGINS` includes the origin of the frontend where users access the app, e.g. `https://ai-academic-assistant-lbmxfwvf8.vercel.app`.
 - **AI analysis errors:** verify `GEMINI_API_KEY` is set in backend `.env` and the backend can reach Google Gemini.
 
 ### Key endpoints
